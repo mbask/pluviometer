@@ -29,14 +29,14 @@ precipitazione %<>%
   mutate(
     superficie_imbuto_cm2   = get_funnel_area(diametro_imbuto_cm) # cm2
     , fattore_pluviometrico = get_pluviometer_factor(superficie_imbuto_cm2) # 1/m2
-    , precipitazione_ml     = get_precipitation_measure(volume_acqua_ml, fattore_pluviometrico) # ml o l/m2
-    , ricarica_cisterna_l   = get_tank_charge(precipitazione_ml, cfg$perdita_acqua_per_evaporazione_tetto, cfg$superficie_tetto) # m3
+    , precipitazione_mm     = get_precipitation_measure(volume_acqua_ml, fattore_pluviometrico) # ml o l/m2
+    , ricarica_cisterna_l   = get_tank_charge(precipitazione_mm, cfg$superficie_tetto, cfg$perdita_acqua_per_evaporazione_tetto) # l
   )
 
 monthly_precipitation <- precipitazione %>%
   mutate(year = year(data_dmy), month = month(data_dmy, label = TRUE)) %>%
   group_by(month, year) %>%
-  select(precipitazione_ml, ricarica_cisterna_l) %>%
+  select(precipitazione_mm, ricarica_cisterna_l) %>%
   summarise_each(funs(sum))
 
 print(monthly_precipitation)
