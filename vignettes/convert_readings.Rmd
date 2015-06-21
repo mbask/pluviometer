@@ -1,0 +1,43 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, fig.show='hold'}
+library(dplyr)
+library(magrittr)
+library(lubridate)
+
+cfg <- list(
+  superficie_tetto = 150 # m2
+  , perdita_acqua_per_evaporazione_tetto = 1 # ml
+)
+
+precipitazione <- data.frame(
+  diametro_imbuto_cm = c(11, 19.3)  # cm
+  , volume_acqua_ml  = c(13, 10) # ml o g
+  , data_dmy = as.Date("20/06/2015", format = "%d/%m/%Y")
+)
+
+precipitazione %<>%
+  mutate(
+    superficie_imbuto_cm2   = get_funnel_area(diametro_imbuto_cm) # cm2
+    , fattore_pluviometrico = get_pluviometer_factor(superficie_imbuto_cm2) # 1/m2
+    , precipitazione_ml     = get_precipitation_measure(volume_acqua_ml, fattore_pluviometrico) # ml o l/m2
+    , ricarica_cisterna_l   = get_tank_charge(precipitazione_ml, cfg$perdita_acqua_per_evaporazione_tetto, cfg$superficie_tetto) # m3
+  )
+
+monthly_precipitation <- precipitazione %>%
+  mutate(year = year(data_dmy), month = month(data_dmy, label = TRUE)) %>%
+  group_by(month, year) %>%
+  select(precipitazione_ml, ricarica_cisterna_l) %>%
+  summarise_each(funs(sum))
+
+print(monthly_precipitation)
+```
