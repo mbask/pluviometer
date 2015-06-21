@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, fig.show='hold'}
+```{r}
 library(dplyr)
 library(magrittr)
 library(lubridate)
@@ -22,7 +22,7 @@ cfg <- list(
 precipitazione <- data.frame(
   diametro_imbuto_cm = c(11, 19.3)  # cm
   , volume_acqua_ml  = c(13, 10) # ml o g
-  , data_dmy = as.Date("20/06/2015", format = "%d/%m/%Y")
+  , data_dmy = dmy(c("20/06/2015", "21/07/2015"))
 )
 
 precipitazione %<>%
