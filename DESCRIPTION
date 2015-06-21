@@ -1,6 +1,6 @@
 Package: pluviometer
 Title: Precipitation readings from a home-made pluviometer
-Version: 0.0.0.9000
+Version: 0.1
 Authors@R: c(person("Marco", "Bascietto", role = c("aut", "cre"), email = "marco@bascietto.name"))
 Description: R package to get precipitation readings from a home-made pluviometer
 Depends: R (>= 3.2.0)
