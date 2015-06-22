@@ -10,7 +10,7 @@ get_pluviometer_factor(funnel_area)
 \item{funnel_area}{The internal surface area of the funnel (in cm2) (required)}
 }
 \value{
-pluviometer factor (numeric). This is a property of the chosen funnel
+pluviometer factor (numeric). This is a property of the chosen funnel, its units of measure is 1/m2
 }
 \description{
 Pluviometer factor is a property of the funnel you chose and depends on

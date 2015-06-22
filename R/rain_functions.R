@@ -10,15 +10,16 @@
 #' @return surface area (numeric). The unit of measure is *funnel_diameter* squared
 #' @export
 #'
+#' @import assertthat
 #' @examples
 #' # Surface area of a 20 cm diameter funnel (314.1593 cm2)
 #' get_funnel_area(20)
 get_funnel_area <- function(funnel_diameter) {
-  if (is.numeric(funnel_diameter) & sum(funnel_diameter > 0) == length(funnel_diameter)) {
-    (funnel_diameter/2)^2 * pi
-  } else {
-    NA_real_
+  assert_that(is.numeric(funnel_diameter))
+  if (sum(funnel_diameter > 0) != length(funnel_diameter)) {
+    warning("Zero or negative funnel_diameter")
   }
+  (funnel_diameter/2)^2 * pi
 }
 
 #' Get pluviometer factor
@@ -32,16 +33,18 @@ get_funnel_area <- function(funnel_diameter) {
 #' @return pluviometer factor (numeric). This is a property of the chosen funnel, its units of measure is 1/m2
 #' @export
 #'
+#' @import assertthat
+#'
 #' @examples
 #' # Get pluviometer factor of a funnel of 314 cm2
 #' get_pluviometer_factor(314)
 #' # To catch rain in 1 m2 one would need 31.84713 funnels of 314 cm2
 get_pluviometer_factor <- function(funnel_area) {
-  if (is.numeric(funnel_area) & sum(funnel_area > 0) == length(funnel_area)) {
-    1E4 / funnel_area
-  } else {
-    NA_real_
+  assert_that(is.numeric(funnel_area))
+  if (sum(funnel_diameter > 0) != length(funnel_diameter)) {
+    warning("Zero or negative funnel_area")
   }
+  1E4 / funnel_area
 }
 
 #' Convert the amount of water found in the graduated cylinder into l/m2

@@ -17,7 +17,7 @@ The larger the funnel diameter, the more rain enters the pluviometer
 and the more precise the readings are
 }
 \details{
-It will silently return NA_real_ for non-numeric and <= 0 funnel diameters
+It will silently return *NA_real_* for non-numeric and <= 0 funnel diameters
 }
 \examples{
 # Surface area of a 20 cm diameter funnel (314.1593 cm2)
