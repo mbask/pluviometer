@@ -6,5 +6,6 @@ Description: R package to get precipitation readings from a home-made pluviomete
 Depends: R (>= 3.2.0)
 License: GPL-3
 LazyData: true
-Suggests: knitr
+Suggests: knitr,
+    testthat
 VignetteBuilder: knitr
