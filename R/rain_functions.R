@@ -14,7 +14,7 @@
 #' # Surface area of a 20 cm diameter funnel (314.1593 cm2)
 #' get_funnel_area(20)
 get_funnel_area <- function(funnel_diameter) {
-  if (is.numeric(funnel_diameter) & funnel_diameter > 0) {
+  if (is.numeric(funnel_diameter) & sum(funnel_diameter > 0) == length(funnel_diameter)) {
     (funnel_diameter/2)^2 * pi
   } else {
     NA_real_
