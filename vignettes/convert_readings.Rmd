@@ -1,6 +1,6 @@
 ---
-title: "Vignette Title"
-author: "Vignette Author"
+title: "Usage of package pluviometer to estimate the amount of rain using a home-made pluviometer"
+author: "Marco Bascietto"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -13,30 +13,31 @@ vignette: >
 library(dplyr)
 library(magrittr)
 library(lubridate)
+library(pluviometer)
 
 cfg <- list(
   superficie_tetto = 150 # m2
-  , perdita_acqua_per_evaporazione_tetto = 1 # ml
 )
 
-precipitazione <- data.frame(
-  diametro_imbuto_cm = c(11, 19.3)  # cm
-  , volume_acqua_ml  = c(13, 10) # ml o g
-  , data_dmy = dmy(c("20/06/2015", "21/07/2015"))
+precipitation_events <- data.frame(
+  funnel_diameter_cm = c(11, 11)  # cm
+  , water_volume_ml  = c(13, 13) # ml o g
+  , loss_due_to_evaporation_mm = c(1, 0.5) # ml
+  , date_dmy = dmy(c("20/06/2015", "24/06/2015"))
 )
 
-precipitazione %<>%
+precipitation_events %<>%
   mutate(
-    superficie_imbuto_cm2   = get_funnel_area(diametro_imbuto_cm) # cm2
-    , fattore_pluviometrico = get_pluviometer_factor(superficie_imbuto_cm2) # 1/m2
-    , precipitazione_mm     = get_precipitation_measure(volume_acqua_ml, fattore_pluviometrico) # ml o l/m2
-    , ricarica_cisterna_l   = get_tank_charge(precipitazione_mm, cfg$superficie_tetto, cfg$perdita_acqua_per_evaporazione_tetto) # l
+    funnel_area_cm2       = get_funnel_area(funnel_diameter_cm) # cm2
+    , pluviometric_factor = get_pluviometer_factor(funnel_area_cm2) # 1/m2
+    , precipitation_mm    = get_precipitation_measure(water_volume_ml, pluviometric_factor) # ml o l/m2
+    , tank_charge_l       = get_tank_charge(precipitation_mm, cfg$superficie_tetto, loss_due_to_evaporation_mm) # l
   )
 
-monthly_precipitation <- precipitazione %>%
-  mutate(year = year(data_dmy), month = month(data_dmy, label = TRUE)) %>%
+monthly_precipitation <- precipitation_events %>%
+  mutate(year = year(date_dmy), month = month(date_dmy, label = TRUE)) %>%
   group_by(month, year) %>%
-  select(precipitazione_mm, ricarica_cisterna_l) %>%
+  select(precipitation_mm, tank_charge_l) %>%
   summarise_each(funs(sum))
 
 print(monthly_precipitation)
