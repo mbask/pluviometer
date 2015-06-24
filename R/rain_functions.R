@@ -41,7 +41,7 @@ get_funnel_area <- function(funnel_diameter) {
 #' # To catch rain in 1 m2 one would need 31.84713 funnels of 314 cm2
 get_pluviometer_factor <- function(funnel_area) {
   assert_that(is.numeric(funnel_area))
-  if (sum(funnel_diameter > 0) != length(funnel_diameter)) {
+  if (sum(funnel_area > 0) != length(funnel_area)) {
     warning("Zero or negative funnel_area")
   }
   1E4 / funnel_area
