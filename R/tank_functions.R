@@ -12,7 +12,8 @@
 #' @examples
 #' # Amount of tank charge following a 10 mm rain on a 150 m2 roof, no evaporation
 #' get_tank_charge(10, 150)
-#' # Amount of tank charge following a 10 mm rain on a 150 m2 roof, assuming 2 mm of rain evaporated on hot roof
+#' # Amount of tank charge following a 10 mm rain on a 150 m2 roof,
+#' # assuming 2 mm of rain evaporated on hot roof
 #' get_tank_charge(10, 150, 2)
 get_tank_charge <- function(precipitation, precipitation_area, evaporation_loss = 0) {
   charge <- (precipitation - evaporation_loss) * precipitation_area
