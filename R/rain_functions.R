@@ -62,6 +62,16 @@ get_pluviometer_factor <- function(funnel_area) {
 #' # Found 10 ml of water in a pluviometer whose factor is 31.84713
 #' get_precipitation_measure(10, 31.84713)
 get_precipitation_measure <- function(water_volume, pluviometer_factor) {
+  assert_that(is.numeric(water_volume))
+  assert_that(is.numeric(pluviometer_factor))
+  
+  if (sum(water_volume >= 0) != length(water_volume)) {
+    warning("Negative water_volume")
+  }
+  if (sum(pluviometer_factor > 0) != length(pluviometer_factor)) {
+    warning("Zero or negative pluviometer_factor")
+  }
+  
   water_volume_l <- water_volume / 1E3
   water_volume_l * pluviometer_factor
 }
