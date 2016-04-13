@@ -16,12 +16,12 @@ library(lubridate)
 library(pluviometer)
 
 cfg <- list(
-  superficie_tetto = 150 # m2
+  superficie_tetto = 180 # m2
 )
 
 precipitation_events <- data.frame(
-  funnel_diameter_cm = c(11, 11)  # cm
-  , water_volume_ml  = c(13, 13) # ml o g
+  funnel_diameter_cm = c(11, 25)  # cm
+  , water_volume_ml  = c(13, 329) # ml o g
   , loss_due_to_evaporation_mm = c(1, 0.5) # ml
   , date_dmy = dmy(c("20/06/2015", "24/06/2015"))
 )
