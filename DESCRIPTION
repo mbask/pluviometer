@@ -1,12 +1,20 @@
 Package: pluviometer
-Title: Precipitation readings from a home-made pluviometer
-Version: 0.1
+Title: Precipitation Readings From a Home-made Pluviometer
+Version: 0.1.1
 Authors@R: c(person("Marco", "Bascietto", role = c("aut", "cre"), email = "marco@bascietto.name"))
-Description: R package to get precipitation readings from a home-made pluviometer
-Depends: R (>= 3.2.0)
+Description: R package to aid in the estimation of precipitation amounts from a home-made
+    pluviometer. Building a pluviometer is super-easy, just place a funnel ontop of a cointainer, note funnel diameter and, periodically note the volume of water in the container. 
+Depends:
+    R (>= 3.2.0)
 License: GPL-3
 LazyData: true
-Suggests: knitr,
-    testthat
-Imports: assertthat
+Suggests:
+    knitr,
+    testthat,
+    lubridate,
+    magrittr,
+    dplyr
+Imports:
+    assertthat
 VignetteBuilder: knitr
+RoxygenNote: 5.0.1
