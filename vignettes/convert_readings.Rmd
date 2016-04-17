@@ -9,35 +9,57 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r}
+```{r message=FALSE}
 library(dplyr)
-library(magrittr)
 library(lubridate)
 library(pluviometer)
+```
 
-cfg <- list(
-  superficie_tetto = 180 # m2
-)
+Let's follow a typical workflow to convert readings from home-made rain gauges (pluviometers) into precipitation figures and to estimate the recharge of a water tank connected to a house roof thanks to precipitation on the roof itself.
 
-precipitation_events <- data.frame(
-  funnel_diameter_cm = c(11, 25)  # cm
-  , water_volume_ml  = c(13, 329) # ml o g
-  , loss_due_to_evaporation_mm = c(1, 0.5) # ml
-  , date_dmy = dmy(c("20/06/2015", "24/06/2015"))
-)
+Having built a couple of rain gauges with different funnel diameters, let's import a couple of readings we gathered during precipitation events:
 
-precipitation_events %<>%
+```{r}
+precipitation_events <- read.table(
+  text = "
+funnel_diameter_cm water_volume_ml evaporation_loss_mm date_dmy
+11                 13              1                   20/06/2015
+25                 329             0.5                 24/06/2015
+25                 100             0.5                 02/09/2015
+25                 200             0.0                 03/09/2015
+25                 500             0.3                 16/09/2015",
+  header = TRUE)
+```
+
+
+`Funnel_diameter` is the diameter of the circular opening where rain is captured, `water_volume_ml` is the amount of water collected in the rain gauge (either as ml or as g), `evaporation_loss_mm` is an estimate of the water lost from the roof at the beginning of the precipitation event due to evaporation (this is water that will not flow in the tank).
+
+The surface area of the house roof:
+```{r}
+roof_area <- 12*12 # m2
+```
+
+Now for the core parte: let's compute the amount of precipitation from the rain gauge readings for each precipitation event:
+
+```{r}
+precipitation_events <- precipitation_events %>%
   mutate(
-    funnel_area_cm2       = get_funnel_area(funnel_diameter_cm) # cm2
-    , pluviometric_factor = get_pluviometer_factor(funnel_area_cm2) # 1/m2
-    , precipitation_mm    = get_precipitation_measure(water_volume_ml, pluviometric_factor) # ml o l/m2
-    , tank_charge_l       = get_tank_charge(precipitation_mm, cfg$superficie_tetto, loss_due_to_evaporation_mm) # l
+    date = lubridate::dmy(date_dmy),
+    funnel_area_cm2 = get_funnel_area(funnel_diameter_cm), # cm2
+    pluv_factor     = get_pluviometer_factor(funnel_area_cm2), # 1/m2
+    rain_mm         = get_precipitation_measure(water_volume_ml, pluv_factor), # ml o l/m2
+    tank_charge_l   = get_tank_charge(rain_mm, roof_area, evaporation_loss_mm) # l
   )
+print(precipitation_events %>% select(date, rain_mm, tank_charge_l))
+```
 
+Finally a monthly summary:
+
+```{r}
 monthly_precipitation <- precipitation_events %>%
-  mutate(year = year(date_dmy), month = month(date_dmy, label = TRUE)) %>%
+  mutate(year = year(date), month = month(date, label = TRUE)) %>%
   group_by(month, year) %>%
-  select(precipitation_mm, tank_charge_l) %>%
+  select(rain_mm, tank_charge_l) %>%
   summarise_each(funs(sum))
 
 print(monthly_precipitation)
