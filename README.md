@@ -2,7 +2,11 @@
 
 # pluviometer
 R package to aid in the estimation of precipitation amounts from a home-made pluviometer. 
-Building a pluviometer is super-easy, just place a funnel ontop of a cointainer, note funnel diameter and, periodically note the volume of water in the container.
+Building a pluviometer is super-easy, just place a funnel ontop of a cointainer, take note of funnel diameter and, periodically (or after each rain event) note down the volume of water in the container.
+
+The package is not yet on CRAN, to install it use `devtools` [package](https://cran.r-project.org/web/packages/devtools/index.html):
+
+`devtools::install_github("mbask/pluviometer")`
 
 # Usage example
 
