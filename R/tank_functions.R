@@ -15,11 +15,13 @@
 #' # Amount of tank charge following a 10 mm rain on a 150 m2 roof,
 #' # assuming 2 mm of rain evaporated on hot roof
 #' get_tank_charge(10, 150, 2)
-get_tank_charge <- function(precipitation, precipitation_area, evaporation_loss = 0) {
+get_tank_charge <- function(precipitation, 
+                            precipitation_area, 
+                            evaporation_loss = 0) {
   assert_that(is.numeric(precipitation))
   assert_that(is.numeric(precipitation_area))
   assert_that(is.numeric(evaporation_loss))
-  
+
   if (sum(precipitation >= 0) != length(precipitation)) {
     warning("Negative precipitation")
   }

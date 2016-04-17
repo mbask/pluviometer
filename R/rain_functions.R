@@ -19,7 +19,7 @@ get_funnel_area <- function(funnel_diameter) {
   if (sum(funnel_diameter > 0) != length(funnel_diameter)) {
     warning("Zero or negative funnel_diameter")
   }
-  (funnel_diameter/2)^2 * pi
+  (funnel_diameter / 2) ^ 2 * pi
 }
 
 #' Get pluviometer factor
@@ -64,14 +64,14 @@ get_pluviometer_factor <- function(funnel_area) {
 get_precipitation_measure <- function(water_volume, pluviometer_factor) {
   assert_that(is.numeric(water_volume))
   assert_that(is.numeric(pluviometer_factor))
-  
+
   if (sum(water_volume >= 0) != length(water_volume)) {
     warning("Negative water_volume")
   }
   if (sum(pluviometer_factor > 0) != length(pluviometer_factor)) {
     warning("Zero or negative pluviometer_factor")
   }
-  
+
   water_volume_l <- water_volume / 1E3
   water_volume_l * pluviometer_factor
 }
