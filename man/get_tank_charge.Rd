@@ -4,14 +4,14 @@
 \alias{get_tank_charge}
 \title{Estimate the amount of rain flown into a tank collected on an arbitrary surface}
 \usage{
-get_tank_charge(precipitation, precipitation_area, evaporation_loss = 0)
+get_tank_charge(precipitation, precipitation_area, discharge_coef = 0.8)
 }
 \arguments{
 \item{precipitation}{the amount of rain fallen in mm}
 
 \item{precipitation_area}{the surface area of the roof}
 
-\item{evaporation_loss}{mm of rain lost to evaporation on the roof (optional, defaults to 0)}
+\item{discharge_coef}{The discharge coefficient determines the proportion of rainfall to the total rainfall, which is actually discharged from the roof (optional, defaults to 0.8, for an inclined hard roof, with shingles)}
 }
 \value{
 volume of water collected (numeric, in l)
@@ -20,10 +20,9 @@ volume of water collected (numeric, in l)
 Rain tanks typically collect water from house roofs.
 }
 \examples{
-# Amount of tank charge following a 10 mm rain on a 150 m2 roof, no evaporation
+# Amount of tank charge following a 10 mm rain on a 150 m2 roof
 get_tank_charge(10, 150)
-# Amount of tank charge following a 10 mm rain on a 150 m2 roof,
-# assuming 2 mm of rain evaporated on hot roof
-get_tank_charge(10, 150, 2)
+# Amount of tank charge following a 10 mm rain on a 150 m2 green roof,
+get_tank_charge(10, 150, 0.3)
 }
 
