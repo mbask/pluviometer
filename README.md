@@ -45,7 +45,7 @@ roof_area <- 12*12 # m2
 discharge_coefficient <- 0.8
 ```
 
-Now for the core parte: let's compute the amount of precipitation from the rain gauge readings for each precipitation event:
+Now for the core part: let's compute the amount of precipitation from the rain gauge readings for each precipitation event:
 
 
 ```r
@@ -129,37 +129,49 @@ When the irrigation season starts (June, 1st) the tank is full of rain water (50
 
 
 ```r
-water_use_tbl$water_balance_l    <- NA_real_
-water_use_tbl$water_balance_l[1] <- tank_volume_l
-water_use_tbl$recharge <- FALSE
-water_use_tbl$rain_lost_l <- 0
+water_use_tbl <- within(water_use_tbl, {
+  water_balance_l    <- NA_real_
+  water_balance_l[1] <- tank_volume_l
+  is_recharged       <- FALSE
+  rain_lost_l        <- 0
+})
 ```
 
-Every time the tank empties it need to be refilled with water from the well. Let's estimate how much water we have pumped from the well, as opposed to the water we recycled from rain fallen on the house roof, on a daily level.
+Every time the tank empties it need to be recharged with water from the well. Let's estimate how much water we have pumped from the well, as opposed to the water we recycled from rain fallen on the house roof, on a daily level.
 
 Firstly we need a simulation function that lowers water level in the tank according to sprinkler water needs, pumps water from the well when water level drops below 0, and adds rain water, on a daily level:
 
 
 ```r
-get_water_balance <- function(water_balance_l, tank_rain_charge_l, daily_water_usage_l, recharge, rain_lost_l, tank_volume_l) {
-
+get_water_balance <- function(water_balance_l, 
+                              tank_rain_charge_l, 
+                              daily_water_usage_l, 
+                              is_recharged, 
+                              rain_lost_l,
+                              tank_volume_l) {
+  
   new_water_balance_l <- sum(c(
     water_balance_l, 
     tank_rain_charge_l, 
     daily_water_usage_l*-1), 
     na.rm = TRUE)
-
+  
   if (new_water_balance_l < 0) {
     new_water_balance_l <- new_water_balance_l + tank_volume_l
-    recharge  <- TRUE
+    is_recharged  <- TRUE
   }
   if (new_water_balance_l > tank_volume_l) {
-    rain_lost_l <- new_water_balance_l - tank_volume_l
-    new_water_balance_l   <- tank_volume_l
-    tank_rain_charge_l <- tank_rain_charge_l - rain_lost_l
+    rain_lost_l         <- new_water_balance_l - tank_volume_l
+    new_water_balance_l <- tank_volume_l
+    tank_rain_charge_l  <- tank_rain_charge_l - rain_lost_l
   }
-  water_balance_l <- new_water_balance_l
-  data.frame(water_balance_l, tank_rain_charge_l, daily_water_usage_l, recharge, rain_lost_l)
+
+  data.frame(
+    water_balance_l = new_water_balance_l, 
+    tank_rain_charge_l, 
+    daily_water_usage_l, 
+    is_recharged, 
+    rain_lost_l)
 }
 ```
 
@@ -181,14 +193,14 @@ for(i in seq(1, nrow(water_use_tbl), by = 1)) {
       prior_water_balance_l, 
       tank_rain_charge_l, 
       daily_water_usage_l, 
-      recharge, 
+      is_recharged, 
       rain_lost_l, 
       tank_volume_l))
 
   water_use_tbl[i,] <- within(
     water_use_tbl[i,], {
       water_balance_l = tmp_df$water_balance_l
-      recharge        = tmp_df$recharge
+      is_recharged    = tmp_df$is_recharged
       rain_lost_l     = tmp_df$rain_lost_l
       tank_rain_charge_l = tmp_df$tank_rain_charge_l
   })
@@ -218,7 +230,7 @@ Finally we can estimate how much water we recycled from rainfall and how much wa
 ```r
 total_water_budget <- water_use_tbl %>%
   mutate(
-    tank_well_charge_l = recharge * tank_volume_l) %>% 
+    tank_well_charge_l = is_recharged * tank_volume_l) %>% 
   select(
     tank_rain_charge_l, 
     tank_well_charge_l, 
