@@ -36,7 +36,7 @@ funnel_diameter_cm water_volume_ml date_dmy
 ```
 
 
-`Funnel_diameter` is the diameter of the circular opening where rain is captured, `water_volume_ml` is the amount of water collected in the rain gauge (either as ml or as g), `evaporation_loss_mm` is an estimate of the water lost from the roof at the beginning of the precipitation event due to evaporation (this is water that will not flow in the tank).
+`funnel_diameter_cm` is the diameter of the circular opening where rain is captured, `water_volume_ml` is the amount of water collected in the rain gauge (either as ml or as g).
 
 The surface area of the house roof:
 
