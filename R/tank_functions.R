@@ -65,7 +65,7 @@ get_tank_charge_on_same_surface <- function(precipitation_area, discharge_coef) 
 #'
 #' @param tank_level level of water in the tank before in/out flows
 #' @param water_in  the amount of water flowing in the tank (usually from rainfall), may be \code{NA}
-#' @param water_out the amount of water flowing out the tank (usually for garden irrigation), may be \code{NA}
+#' @param water_out the amount of water flowing out the tank (usually for lawn irrigation), may be \code{NA}
 #' @param tank_volume the total volume of the tank
 #'
 #' @return a 1 row \code{data.frame} with the following variables: tank_level, water_in, is_recharged, lost_water

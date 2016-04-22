@@ -11,7 +11,7 @@ get_tank_water_level(tank_level, water_in, water_out, tank_volume)
 
 \item{water_in}{the amount of water flowing in the tank (usually from rainfall), may be \code{NA}}
 
-\item{water_out}{the amount of water flowing out the tank (usually for garden irrigation), may be \code{NA}}
+\item{water_out}{the amount of water flowing out the tank (usually for lawn irrigation), may be \code{NA}}
 
 \item{tank_volume}{the total volume of the tank}
 }
