@@ -47,11 +47,7 @@ get_roof_runoff <- function(precipitation,
 
   runoff <- (precipitation * discharge_coef * precipitation_area) - first_flush_diverted
   
-  if (runoff < 0) {
-    runoff = 0
-  }
-  
-  runoff
+  ifelse(runoff < 0, 0, runoff)
 }
 
 #' Estimate the amount of rain flown into a tank collected for a given surface, discharge coefficient, and first flush volume diverted
