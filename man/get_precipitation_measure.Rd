@@ -4,12 +4,12 @@
 \alias{get_precipitation_measure}
 \title{Convert the amount of water found in the graduated cylinder into l/m2}
 \usage{
-get_precipitation_measure(water_volume, pluviometer_factor)
+get_precipitation_measure(water_volume, funnel_area)
 }
 \arguments{
 \item{water_volume}{the volume (in ml) or weight (in g) of the water in the graduated cylinder (required)}
 
-\item{pluviometer_factor}{the factor unique to the funnel chosen (required)}
+\item{funnel_area}{the internal surface area of the funnel (in cm2) (required)}
 }
 \value{
 standard rain measure in l/m2 or mm (numeric)
