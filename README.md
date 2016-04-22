@@ -31,18 +31,19 @@ funnel_diameter_cm water_volume_ml date_dmy
 25                 329             24/06/2015
 25                 100             02/07/2015
 25                 200             03/07/2015
-25                 500             16/07/2015",
+25                 700             18/07/2015",
   header = TRUE)
 ```
 
 
-`funnel_diameter_cm` is the diameter of the circular opening where rain is captured, `water_volume_ml` is the amount of water collected in the rain gauge (either as ml or as g).
+`funnel_diameter_cm` is the diameter of the circular opening where rain is captured, `water_volume_ml` is the amount of water collected in the rain gauge (either as `ml` or as `g`).
 
-The surface area of the house roof:
+The surface area of the house roof and its discharge coefficient:
 
 ```r
-roof_area <- 12*12 # m2
-discharge_coefficient <- 0.8
+rainfall_in_tank <- get_tank_charge_on_same_surface(
+  precipitation_area = 121, 
+  discharge_coef     = 0.8)
 ```
 
 Now for the core part: let's compute the amount of precipitation from the rain gauge readings for each precipitation event:
@@ -52,22 +53,36 @@ Now for the core part: let's compute the amount of precipitation from the rain g
 precipitation_events <- precipitation_events %>%
   mutate(
     date = lubridate::dmy(date_dmy),
-    funnel_area_cm2 = get_funnel_area(funnel_diameter_cm), # cm2
-    pluv_factor     = get_pluviometer_factor(funnel_area_cm2), # 1/m2
-    rain_mm         = get_precipitation_measure(water_volume_ml, pluv_factor), # ml o l/m2
-    tank_rain_charge_l = get_tank_charge(rain_mm, roof_area, discharge_coefficient) # l
+    rain_mm         = get_precipitation_measure(
+      water_volume_ml,
+      funnel_diameter_cm %>% get_funnel_area), # ml o l/m2
+    tank_rain_charge_l = rain_mm %>% rainfall_in_tank # l
   )
-print(precipitation_events %>% select(date, rain_mm, tank_rain_charge_l))
+precipitation_events %>% 
+  select(date, rain_mm, tank_rain_charge_l) %>% 
+  print
 ```
 
 ```
 ##         date   rain_mm tank_rain_charge_l
-## 1 2015-06-20  1.367943           81.78384
-## 2 2015-06-24  6.702333          849.93595
-## 3 2015-07-02  2.037183          178.15439
-## 4 2015-07-03  4.074367          471.50878
-## 5 2015-07-16 10.185916         1351.57196
+## 1 2015-06-20  1.367943           132.4169
+## 2 2015-06-24  6.702333           648.7858
+## 3 2015-07-02  2.037183           197.1993
+## 4 2015-07-03  4.074367           394.3987
+## 5 2015-07-18 14.260283          1380.3954
 ```
+
+
+```r
+ggplot(precipitation_events, aes(x = date, y = rain_mm)) +
+  geom_bar(stat = "identity") +
+  scale_y_continuous("Rainfall (mm)") +
+  scale_x_date("Date") +
+  theme_light()
+```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png)
+
 
 Finally a monthly summary:
 
@@ -88,8 +103,8 @@ print(monthly_precipitation)
 ## 
 ##    month  year   rain_mm tank_rain_charge_l
 ##   (fctr) (dbl)     (dbl)              (dbl)
-## 1    Jun  2015  8.070276           931.7198
-## 2    Jul  2015 16.297466          2001.2351
+## 1    Jun  2015  8.070276           781.2027
+## 2    Jul  2015 20.371833          1971.9934
 ```
 
 ## Water balance in the water recycling tank
@@ -139,75 +154,39 @@ water_use_tbl <- within(water_use_tbl, {
 
 Every time the tank empties it need to be recharged with water from the well. Let's estimate how much water we have pumped from the well, as opposed to the water we recycled from rain fallen on the house roof, on a daily level.
 
-Firstly we need a simulation function that lowers water level in the tank according to sprinkler water needs, pumps water from the well when water level drops below 0, and adds rain water, on a daily level:
+We will simulate a tank whose water level varies according to sprinkler water needs, water pumped from the well, and rain collected from the roof. Let's walk the `water_use_tbl` data frame to estimate the water balance on a dayly basis:
 
 
 ```r
-get_water_balance <- function(water_balance_l, 
-                              tank_rain_charge_l, 
-                              daily_water_usage_l, 
-                              is_recharged, 
-                              rain_lost_l,
-                              tank_volume_l) {
-  
-  new_water_balance_l <- sum(c(
-    water_balance_l, 
-    tank_rain_charge_l, 
-    daily_water_usage_l*-1), 
-    na.rm = TRUE)
-  
-  if (new_water_balance_l < 0) {
-    new_water_balance_l <- new_water_balance_l + tank_volume_l
-    is_recharged  <- TRUE
-  }
-  if (new_water_balance_l > tank_volume_l) {
-    rain_lost_l         <- new_water_balance_l - tank_volume_l
-    new_water_balance_l <- tank_volume_l
-    tank_rain_charge_l  <- tank_rain_charge_l - rain_lost_l
-  }
-
-  data.frame(
-    water_balance_l = new_water_balance_l, 
-    tank_rain_charge_l, 
-    daily_water_usage_l, 
-    is_recharged, 
-    rain_lost_l)
-}
-```
-
-Then we walk the `water_use_tbl` data frame:
-
-```r
-for(i in seq(1, nrow(water_use_tbl), by = 1)) {
-  day_row <- water_use_tbl[i,]
-
-  if(i == 1) {
-      prior_water_balance_l <- day_row$water_balance_l
+for (i in seq(1, nrow(water_use_tbl), by = 1)) {
+ 
+  if (i == 1) {
+      prior_water_level_l <- water_use_tbl$water_balance_l[i]
   } else {
-      prior_water_balance_l <- water_use_tbl$water_balance_l[i-1]
+      prior_water_level_l <- water_use_tbl$water_balance_l[i - 1]
   } 
 
-  tmp_df <- with(
-    day_row, 
-    get_water_balance(
-      prior_water_balance_l, 
-      tank_rain_charge_l, 
-      daily_water_usage_l, 
-      is_recharged, 
-      rain_lost_l, 
-      tank_volume_l))
+  tmp_df <- get_tank_water_level(
+      tank_level = prior_water_level_l, 
+      water_in  = water_use_tbl$tank_rain_charge_l[i], 
+      water_out = water_use_tbl$daily_water_usage_l[i], 
+      tank_volume = tank_volume_l)
 
   water_use_tbl[i,] <- within(
     water_use_tbl[i,], {
-      water_balance_l = tmp_df$water_balance_l
+      water_balance_l = tmp_df$tank_level
       is_recharged    = tmp_df$is_recharged
-      rain_lost_l     = tmp_df$rain_lost_l
-      tank_rain_charge_l = tmp_df$tank_rain_charge_l
+      rain_lost_l     = tmp_df$water_lost
+      tank_rain_charge_l = tmp_df$water_in
   })
 }
 ```
 
+```
+## Error: non trovo la funzione "get_tank_water_level"
+```
 
+The jaw-teeth plot of the daily water balance in the tank reveals the grim role of rainfall in the summer season as far as water budget for irrigation is concerned:
 
 ```r
 water_use_tbl %>% 
@@ -242,7 +221,7 @@ total_water_budget %>% print
 
 ```
 ##   tank_rain_charge_l tank_well_charge_l rain_lost_l
-## 1               2600              30000    332.9549
+## 1           2753.196                  0           0
 ```
 
 Hopefully next year won't be as dry as 2015...
