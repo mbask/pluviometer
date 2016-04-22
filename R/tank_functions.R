@@ -30,6 +30,5 @@ get_tank_charge <- function(precipitation,
     warning("Zero or negative precipitation_area")
   }
 
-  charge <- precipitation * discharge_coef * precipitation_area
-  ifelse(charge > 0, charge, 0)
+  precipitation * discharge_coef * precipitation_area
 }
