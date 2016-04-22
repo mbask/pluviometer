@@ -29,7 +29,7 @@ funnel_diameter_cm water_volume_ml date_dmy
 25                 329             24/06/2015
 25                 100             02/07/2015
 25                 200             03/07/2015
-25                 700             16/07/2015",
+25                 700             18/07/2015",
   header = TRUE)
 ```
 
@@ -123,70 +123,35 @@ water_use_tbl <- within(water_use_tbl, {
 
 Every time the tank empties it need to be recharged with water from the well. Let's estimate how much water we have pumped from the well, as opposed to the water we recycled from rain fallen on the house roof, on a daily level.
 
-Firstly we need a simulation function that lowers water level in the tank according to sprinkler water needs, pumps water from the well when water level drops below 0, and adds rain water, on a daily level:
+We will simulate a tank whose water level varies according to sprinkler water needs, water pumped from the well, and rain collected from the roof. Let's walk the `water_use_tbl` data frame to estimate the water balance on a dayly basis:
 
-```{r}
-get_water_balance <- function(water_balance_l, 
-                              tank_rain_charge_l, 
-                              daily_water_usage_l,
-                              tank_volume_l) {
-  
-  new_water_balance_l <- sum(c(
-    water_balance_l, 
-    tank_rain_charge_l, 
-    daily_water_usage_l*-1), 
-    na.rm = TRUE)
-  
-  is_recharged <- new_water_balance_l < 0
-  if (is_recharged)  {
-    new_water_balance_l <- new_water_balance_l + tank_volume_l
-  }
-
-  if (new_water_balance_l > tank_volume_l) {
-    rain_lost_l         <- new_water_balance_l - tank_volume_l
-    new_water_balance_l <- tank_volume_l
-    tank_rain_charge_l  <- tank_rain_charge_l - rain_lost_l
-  } else {
-    rain_lost_l <- 0
-  }
-
-  data.frame(
-    water_balance_l = new_water_balance_l, 
-    tank_rain_charge_l, 
-    daily_water_usage_l, 
-    is_recharged, 
-    rain_lost_l)
-}
-```
-
-Then we walk the `water_use_tbl` data frame to estimate the water balance on a dayly basis:
 ```{r}
 for (i in seq(1, nrow(water_use_tbl), by = 1)) {
  
   if (i == 1) {
-      prior_water_balance_l <- water_use_tbl$water_balance_l[i]
+      prior_water_level_l <- water_use_tbl$water_balance_l[i]
   } else {
-      prior_water_balance_l <- water_use_tbl$water_balance_l[i - 1]
+      prior_water_level_l <- water_use_tbl$water_balance_l[i - 1]
   } 
 
-  tmp_df <- get_water_balance(
-      prior_water_balance_l, 
-      water_use_tbl$tank_rain_charge_l[i], 
-      water_use_tbl$daily_water_usage_l[i], 
-      tank_volume_l)
+  tmp_df <- get_tank_water_level(
+      tank_level = prior_water_level_l, 
+      water_in  = water_use_tbl$tank_rain_charge_l[i], 
+      water_out = water_use_tbl$daily_water_usage_l[i], 
+      tank_volume = tank_volume_l)
 
   water_use_tbl[i,] <- within(
     water_use_tbl[i,], {
-      water_balance_l = tmp_df$water_balance_l
+      water_balance_l = tmp_df$tank_level
       is_recharged    = tmp_df$is_recharged
-      rain_lost_l     = tmp_df$rain_lost_l
-      tank_rain_charge_l = tmp_df$tank_rain_charge_l
+      rain_lost_l     = tmp_df$water_lost
+      tank_rain_charge_l = tmp_df$water_in
   })
 }
 
 ```
 
-The jaw-teeth plot of the dayly water balance in the tank reveals the grim role of rainfall in the summer season as far as water budget for irrigation is concerned:
+The jaw-teeth plot of the daily water balance in the tank reveals the grim role of rainfall in the summer season as far as water budget for irrigation is concerned:
 ```{r fig.width=7}
 water_use_tbl %>% 
   select(date, water_balance_l, rain_lost_l) %>% 
