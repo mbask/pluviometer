@@ -10,6 +10,7 @@ The package is not yet on CRAN, to install it use `devtools` [package](https://c
 
 ## Usage example
 
+
 ```r
 library(dplyr)
 library(lubridate)
@@ -41,9 +42,10 @@ funnel_diameter_cm water_volume_ml date_dmy
 The surface area of the house roof and its discharge coefficient:
 
 ```r
-rainfall_in_tank <- get_tank_charge_on_same_surface(
+rainfall_in_tank <- get_roof_runoff_on_same_surface(
   precipitation_area = 121, 
-  discharge_coef     = 0.8)
+  discharge_coef     = 0.8,
+  first_flush_diverted = 0)
 ```
 
 Now for the core part: let's compute the amount of precipitation from the rain gauge readings for each precipitation event:
@@ -53,7 +55,7 @@ Now for the core part: let's compute the amount of precipitation from the rain g
 precipitation_events <- precipitation_events %>%
   mutate(
     date = lubridate::dmy(date_dmy),
-    rain_mm         = get_precipitation_measure(
+    rain_mm = get_precipitation_measure(
       water_volume_ml,
       funnel_diameter_cm %>% get_funnel_area), # ml o l/m2
     tank_rain_charge_l = rain_mm %>% rainfall_in_tank # l
