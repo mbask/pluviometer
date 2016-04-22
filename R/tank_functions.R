@@ -29,9 +29,6 @@ get_tank_charge <- function(precipitation,
   if (sum(precipitation_area > 0) != length(precipitation_area)) {
     warning("Zero or negative precipitation_area")
   }
-#   if (sum(evaporation_loss >= 0) != length(evaporation_loss)) {
-#     warning("Negative evaporation_loss")
-#   }
 
   charge <- precipitation * discharge_coef * precipitation_area
   ifelse(charge > 0, charge, 0)
