@@ -1,27 +1,42 @@
 #' Estimate the amount of rain flown into a tank collected on an arbitrary surface
 #' 
-#' Rain tanks typically collect water from house roofs. 
+#' Rain tanks typically collect water from house roofs. The amount of roof runoff is very simple:
+#' $(precipitation * precipitation_area * discharge_coef) - first_flush_diverted$
+#' The discharge coefficient determines the proportion of rainfall to the total rainfall, 
+#' that is actually discharged from the roof. An inclined hard roof, with shingles, assume 
+#' a discharge coefficient of 80%, i.e. 0.8, for a green roof assume a a coefficient 
+#' of about 30%.
+#' First flush devices are designed to siphon off the first rainwater that falls on the roof. 
+#' If suc a device is fitted to the rain pipes, the volume of water diverted will have 
+#' to be subtracted from the roof runoff volume.
+#' 
+#' @param precipitation the amount of rain fallen in mm (that is l/m2)
+#' @param precipitation_area the surface area of the roof (in m2)
+#' @param discharge_coef the discharge coefficient (optional, defaults to 0.8)
+#' @param first_flush_diverted the amount of water diverted by "first flush devices" (in l, optional, default to 0, i.e. no first flush device installed).
 #'
-#' @param precipitation the amount of rain fallen in mm
-#' @param precipitation_area the surface area of the roof
-#' @param discharge_coef The discharge coefficient determines the proportion of rainfall to the total rainfall, which is actually discharged from the roof (optional, defaults to 0.8, for an inclined hard roof, with shingles)
-#'
-#' @return volume of water collected (numeric, in l)
+#' @return volume of water runoff (numeric, in l)
 #' @export
 #'
 #' @examples
-#' # Amount of tank charge following a 10 mm rain on a 150 m2 roof
-#' get_tank_charge(10, 150)
-#' # Amount of tank charge following a 10 mm rain on a 150 m2 green roof,
-#' get_tank_charge(10, 150, 0.3)
-get_tank_charge <- function(precipitation, 
+#' # Amount of roof runoff following a 10 mm rain on a 150 m2 roof
+#' get_roof_runoff(10, 150)
+#' # Amount of roof runoff following a 10 mm rain on a 150 m2 green roof,
+#' get_roof_runoff(10, 150, 0.3)
+#' # Amount of roof runoff following a 10 mm rain on a 150 m2 green roof,
+#' # where a first flush device that diverts 50 litres is fitted,
+#' get_roof_runoff(10, 150, 0.3, 50)
+get_roof_runoff <- function(precipitation, 
                             precipitation_area, 
-                            discharge_coef = 0.8) {
+                            discharge_coef = 0.8,
+                            first_flush_diverted = 0) {
   assert_that(is.numeric(precipitation))
   assert_that(is.numeric(precipitation_area))
   assert_that(is.numeric(discharge_coef))
+  assert_that(is.numeric(first_flush_diverted))
   assert_that(discharge_coef > 0)
   assert_that(discharge_coef <= 1)
+  assert_that(first_flush_diverted >= 0)
   
   if (sum(precipitation >= 0) != length(precipitation)) {
     warning("Negative precipitation")
@@ -30,30 +45,38 @@ get_tank_charge <- function(precipitation,
     warning("Zero or negative precipitation_area")
   }
 
-  precipitation * discharge_coef * precipitation_area
+  runoff <- (precipitation * discharge_coef * precipitation_area) - first_flush_diverted
+  
+  if (runoff < 0) {
+    runoff = 0
+  }
+  
+  runoff
 }
 
-#' Estimate the amount of rain flown into a tank collected for a given surface and discharge coefficient
+#' Estimate the amount of rain flown into a tank collected for a given surface, discharge coefficient, and first flush volume diverted
 #'
-#' Simple wrapper around \code{get_tank_charge}
+#' Simple wrapper around \code{get_roof_runoff}
 #'
 #' @param precipitation_area the surface area of the roof
-#' @param discharge_coef the discharge coefficient determines the proportion of rainfall to the total rainfall, which is actually discharged from the roof (optional, defaults to 0.8, for an inclined hard roof, with shingles)
+#' @param discharge_coef the discharge coefficient
+#' @param first_flush_diverted the amount of water diverted by "first flush devices" (in l)
 #'
-#' @return \code{get_tank_charge} function with arguments \code{precipitation_area} and \code{discharge_coeff} filled
+#' @return \code{get_roof_runoff} function with arguments \code{precipitation_area} and \code{discharge_coeff} filled
 #' @export
 #'
 #' @examples
-#' rainfall_in_tank <- get_tank_charge_on_same_surface(121, 0.8)
+#' rainfall_in_tank <- get_roof_runoff_on_same_surface(121, 0.8, 45)
 #' rainfall_in_tank(1)
 #' rainfall_in_tank(100)
-get_tank_charge_on_same_surface <- function(precipitation_area, discharge_coef) {
+get_roof_runoff_on_same_surface <- function(precipitation_area, discharge_coef, first_flush_diverted) {
   
   function(precipitation) {
-    get_tank_charge(
+    get_roof_runoff(
       precipitation,
       precipitation_area, 
-      discharge_coef)
+      discharge_coef,
+      first_flush_diverted)
   }
 }
 
@@ -101,7 +124,7 @@ get_tank_water_level <- function(tank_level,
   
   if (new_tank_level > tank_volume) {
     water_lost <- new_tank_level - tank_volume
-    water_in    <- water_in - water_lost
+    water_in   <- water_in - water_lost
   } else {
     water_lost <- 0
   }
