@@ -121,7 +121,7 @@ water_use_tbl <- within(water_use_tbl, {
 })
 ```
 
-Every time the tank empties it need to be recharged with water from the well. Let's estimate how much water we have pumped from the well, as opposed to the water we recycled from rain fallen on the house roof, on a daily level.
+Every time the tank empties it needs to be recharged with water from the well. Let's estimate how much water we have pumped from the well, as opposed to the water we recycled from rain fallen on the house roof, on a daily level.
 
 We will simulate a tank whose water level varies according to sprinkler water needs, water pumped from the well, and rain collected from the roof. Let's walk the `water_use_tbl` data frame to estimate the water balance on a dayly basis:
 

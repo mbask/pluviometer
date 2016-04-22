@@ -152,7 +152,7 @@ water_use_tbl <- within(water_use_tbl, {
 })
 ```
 
-Every time the tank empties it need to be recharged with water from the well. Let's estimate how much water we have pumped from the well, as opposed to the water we recycled from rain fallen on the house roof, on a daily level.
+Every time the tank empties it needs to be recharged with water from the well. Let's estimate how much water we have pumped from the well, as opposed to the water we recycled from rain fallen on the house roof, on a daily level.
 
 We will simulate a tank whose water level varies according to sprinkler water needs, water pumped from the well, and rain collected from the roof. Let's walk the `water_use_tbl` data frame to estimate the water balance on a dayly basis:
 
@@ -180,10 +180,6 @@ for (i in seq(1, nrow(water_use_tbl), by = 1)) {
       tank_rain_charge_l = tmp_df$water_in
   })
 }
-```
-
-```
-## Error: non trovo la funzione "get_tank_water_level"
 ```
 
 The jaw-teeth plot of the daily water balance in the tank reveals the grim role of rainfall in the summer season as far as water budget for irrigation is concerned:
@@ -221,7 +217,7 @@ total_water_budget %>% print
 
 ```
 ##   tank_rain_charge_l tank_well_charge_l rain_lost_l
-## 1           2753.196                  0           0
+## 1           1972.801              30000    780.3954
 ```
 
 Hopefully next year won't be as dry as 2015...
