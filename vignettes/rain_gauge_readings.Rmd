@@ -157,6 +157,7 @@ The jaw-teeth plot of the daily water balance in the tank reveals the grim role 
 water_use_tbl %>% 
   select(date, water_balance_l, rain_lost_l) %>% 
   gather(key = "variable", value = "value", -date) %>% 
+  mutate(value = ifelse(is.na(value), 0, value)) %>% 
   ggplot(., aes(x = date, y = value, color = variable)) + 
     geom_line() + 
     scale_y_continuous("Volume (l)") +
