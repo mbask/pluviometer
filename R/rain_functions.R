@@ -61,6 +61,15 @@ get_pluviometer_factor <- function(funnel_area) {
 #' @examples
 #' # Found 10 ml of water in a pluviometer whose factor is 31.84713
 #' get_precipitation_measure(10, 31.84713)
+#' # Weight of empty container: 856g
+#' # Weight of container with rainwater: 925g
+#' # Diameter of funnel: 19.6 cm
+#' @examples \dontrun {
+#' 19.6  %>% 
+#'  get_funnel_area %>% 
+#'  get_pluviometer_factor %>% 
+#'  get_precipitation_measure(925-856)
+#'  }
 get_precipitation_measure <- function(water_volume, funnel_area) {
   assert_that(is.numeric(water_volume))
 

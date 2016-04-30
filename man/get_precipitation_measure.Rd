@@ -21,5 +21,8 @@ the pluviometer factor
 \examples{
 # Found 10 ml of water in a pluviometer whose factor is 31.84713
 get_precipitation_measure(10, 31.84713)
+# Weight of empty container: 856g
+# Weight of container with rainwater: 925g
+# Diameter of funnel: 19.6 cm
 }
 
