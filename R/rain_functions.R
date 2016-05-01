@@ -10,7 +10,7 @@
 #' @return surface area (numeric). The unit of measure is *funnel_diameter* squared
 #' @export
 #'
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @examples
 #' # Surface area of a 20 cm diameter funnel (314.1593 cm2)
 #' get_funnel_area(20)
@@ -33,7 +33,7 @@ get_funnel_area <- function(funnel_diameter) {
 #' @return pluviometer factor (numeric). This is a property of the funnel, its units of measure is 1/m2
 #' @export
 #'
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #'
 #' @examples
 #' # Get pluviometer factor of a funnel of 314 cm2
@@ -57,18 +57,24 @@ get_pluviometer_factor <- function(funnel_area) {
 #'
 #' @return standard rain measure in l/m2 or mm (numeric)
 #' @export
-#'
+#' @importFrom assertthat assert_that
 #' @examples
-#' # Found 10 ml of water in a pluviometer whose factor is 31.84713
-#' get_precipitation_measure(10, 31.84713)
+#' # Found 10 ml of water in a pluviometer whose surface area is 20 cm^2
+#' get_precipitation_measure(10, 20)
 #' # Weight of empty container: 856g
 #' # Weight of container with rainwater: 925g
 #' # Diameter of funnel: 19.6 cm
 #' @examples \dontrun {
 #' 19.6  %>% 
 #'  get_funnel_area %>% 
-#'  get_pluviometer_factor %>% 
-#'  get_precipitation_measure(925-856)
+#'  get_precipitation_measure(925-856, .)
+#' # Estimate sprinkler flow on a 5 m radius area, switched
+#' # on for 10 minutes, risult in l/m
+#' 19.6  %>% 
+#'  get_funnel_area %>% 
+#'  get_precipitation_measure(925-856, .) %>% 
+#'  multiply_by(pi * 5^2) %>% 
+#'  divide_by(10)
 #'  }
 get_precipitation_measure <- function(water_volume, funnel_area) {
   assert_that(is.numeric(water_volume))

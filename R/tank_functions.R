@@ -17,7 +17,7 @@
 #'
 #' @return volume of water runoff (numeric, in l)
 #' @export
-#'
+#' @importFrom assertthat assert_that
 #' @examples
 #' # Amount of roof runoff following a 10 mm rain on a 150 m2 roof
 #' get_roof_runoff(10, 150)
@@ -89,7 +89,7 @@ get_roof_runoff_on_same_surface <- function(precipitation_area, discharge_coef, 
 #'
 #' @return a 1 row \code{data.frame} with the following variables: tank_level, water_in, is_recharged, lost_water
 #' @export
-#'
+#' @importFrom assertthat assert_that
 #' @examples
 #' tank_level_l <- 2000
 #' tank_vol_l <- 5000

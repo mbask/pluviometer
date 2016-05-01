@@ -19,8 +19,8 @@ The amount of water in ml (or g), is converted to l/m2 (or mm) taking into accou
 the pluviometer factor
 }
 \examples{
-# Found 10 ml of water in a pluviometer whose factor is 31.84713
-get_precipitation_measure(10, 31.84713)
+# Found 10 ml of water in a pluviometer whose surface area is 20 cm^2
+get_precipitation_measure(10, 20)
 # Weight of empty container: 856g
 # Weight of container with rainwater: 925g
 # Diameter of funnel: 19.6 cm
