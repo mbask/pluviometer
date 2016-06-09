@@ -61,10 +61,10 @@ get_pluviometer_factor <- function(funnel_area) {
 #' @examples
 #' # Found 10 ml of water in a pluviometer whose surface area is 20 cm^2
 #' get_precipitation_measure(10, 20)
+#' \dontrun{
 #' # Weight of empty container: 856g
 #' # Weight of container with rainwater: 925g
 #' # Diameter of funnel: 19.6 cm
-#' @examples \dontrun {
 #' 19.6  %>% 
 #'  get_funnel_area %>% 
 #'  get_precipitation_measure(925-856, .)

@@ -21,8 +21,20 @@ the pluviometer factor
 \examples{
 # Found 10 ml of water in a pluviometer whose surface area is 20 cm^2
 get_precipitation_measure(10, 20)
+\dontrun{
 # Weight of empty container: 856g
 # Weight of container with rainwater: 925g
 # Diameter of funnel: 19.6 cm
+19.6  \%>\% 
+ get_funnel_area \%>\% 
+ get_precipitation_measure(925-856, .)
+# Estimate sprinkler flow on a 5 m radius area, switched
+# on for 10 minutes, risult in l/m
+19.6  \%>\% 
+ get_funnel_area \%>\% 
+ get_precipitation_measure(925-856, .) \%>\% 
+ multiply_by(pi * 5^2) \%>\% 
+ divide_by(10)
+ }
 }
 
