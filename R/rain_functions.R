@@ -50,12 +50,18 @@ get_pluviometer_factor <- function(funnel_area) {
 #' Convert the amount of water found in the graduated cylinder into l/m2
 #' 
 #' The amount of water in ml (or g), is converted to l/m2 (or mm) taking into account
-#' the pluviometer factor
+#' the pluviometer factor.
+#' The function may be used to get the amount of water (in ml) one should find in the cylinder, 
+#' given the amount of precipitation. This may be useful to mark an ungraduated container with 
+#' precipitation (mm or l/m2) levels.
 #'
-#' @param water_volume the volume (in ml) or weight (in g) of the water in the graduated cylinder (required)
-#' @param funnel_area the internal surface area of the funnel (in cm2) (required)
+#' @param water_volume the volume (in ml) or weight (in g) of the water in the graduated cylinder
+#' @param funnel_area  the internal surface area of the funnel (in cm2) (required)
+#' @param rain_volume  the volume (in mm or l/m2) of precipitation, default to \code{NULL}
 #'
-#' @return standard rain measure in l/m2 or mm (numeric)
+#' @return standard rain measure in l/m2 or mm (numeric) when \code{rain_volume} is \code{NULL}, 
+#' water volume in ml (numeric) when \code{water_volume} is not numeric
+#' 
 #' @export
 #' @importFrom assertthat assert_that
 #' @examples
@@ -69,22 +75,41 @@ get_pluviometer_factor <- function(funnel_area) {
 #'  get_funnel_area %>% 
 #'  get_precipitation_measure(925-856, .)
 #' # Estimate sprinkler flow on a 5 m radius area, switched
-#' # on for 10 minutes, risult in l/m
+#' # on for 10 minutes, result in l/m
 #' 19.6  %>% 
 #'  get_funnel_area %>% 
 #'  get_precipitation_measure(925-856, .) %>% 
 #'  multiply_by(pi * 5^2) %>% 
 #'  divide_by(10)
+#'  # Inverse calculation
+#'  # How to mark an ungraduated 1 litre cylinder for every 2 mm of rain?
+#'  get_precipitation_measure(
+#'    water_volume = NULL, 
+#'    get_funnel_area(19.6 %>% get_funnel_area), 
+#'    rain_volume = seq(2, 34, 2))
 #'  }
-get_precipitation_measure <- function(water_volume, funnel_area) {
-  assert_that(is.numeric(water_volume))
+get_precipitation_measure <- function(water_volume, funnel_area, rain_volume = NULL) {
+  assert_that(is.numeric(water_volume) | is.numeric(rain_volume))
 
-  if (sum(water_volume >= 0) != length(water_volume)) {
-    warning("Negative water_volume")
-  }
-
-  water_volume_l     <- water_volume / 1E3
   pluviometer_factor <- get_pluviometer_factor(funnel_area)
 
-  water_volume_l * pluviometer_factor
+  if (is.numeric(water_volume)) {
+    if (sum(water_volume >= 0) != length(water_volume)) {
+      warning("Negative water_volume")
+    }
+    message("Rain in mm")
+    water_volume_l <- water_volume / 1E3
+    water_volume_l * pluviometer_factor
+  } else {
+    if (is.numeric(rain_volume)) {
+      if (sum(rain_volume >= 0) != length(rain_volume)) {
+        warning("Negative rain_volume")
+      }
+      message("Container volume in ml")
+      water_volume_l <- rain_volume / pluviometer_factor
+      water_volume_l * 1E3
+    } else {
+      warning("Either ask for precipitation measure (given water_volume) or water_volume (given rain_volume)")
+    }
+  } 
 }

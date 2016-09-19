@@ -4,19 +4,25 @@
 \alias{get_precipitation_measure}
 \title{Convert the amount of water found in the graduated cylinder into l/m2}
 \usage{
-get_precipitation_measure(water_volume, funnel_area)
+get_precipitation_measure(water_volume, funnel_area, rain_volume = NULL)
 }
 \arguments{
-\item{water_volume}{the volume (in ml) or weight (in g) of the water in the graduated cylinder (required)}
+\item{water_volume}{the volume (in ml) or weight (in g) of the water in the graduated cylinder}
 
 \item{funnel_area}{the internal surface area of the funnel (in cm2) (required)}
+
+\item{rain_volume}{the volume (in mm or l/m2) of precipitation, default to \code{NULL}}
 }
 \value{
-standard rain measure in l/m2 or mm (numeric)
+standard rain measure in l/m2 or mm (numeric) when \code{rain_volume} is \code{NULL}, 
+water volume in ml (numeric) when \code{water_volume} is not numeric
 }
 \description{
 The amount of water in ml (or g), is converted to l/m2 (or mm) taking into account
-the pluviometer factor
+the pluviometer factor.
+The function may be used to get the amount of water (in ml) one should find in the cylinder, 
+given the amount of precipitation. This may be useful to mark an ungraduated container with 
+precipitation (mm or l/m2) levels.
 }
 \examples{
 # Found 10 ml of water in a pluviometer whose surface area is 20 cm^2
@@ -29,12 +35,18 @@ get_precipitation_measure(10, 20)
  get_funnel_area \%>\% 
  get_precipitation_measure(925-856, .)
 # Estimate sprinkler flow on a 5 m radius area, switched
-# on for 10 minutes, risult in l/m
+# on for 10 minutes, result in l/m
 19.6  \%>\% 
  get_funnel_area \%>\% 
  get_precipitation_measure(925-856, .) \%>\% 
  multiply_by(pi * 5^2) \%>\% 
  divide_by(10)
+ # Inverse calculation
+ # How to mark an ungraduated 1 litre cylinder for every 2 mm of rain?
+ get_precipitation_measure(
+   water_volume = NULL, 
+   get_funnel_area(19.6 \%>\% get_funnel_area), 
+   rain_volume = seq(2, 34, 2))
  }
 }
 
